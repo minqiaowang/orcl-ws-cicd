@@ -15,4 +15,37 @@ build:
         code: |
             . orclvenv/bin/activate
             flake8 --exclude=orclvenv* --statistics
+            pytest -v --cov=promotionbuild:
+    box: python:3.7
+    steps:
+
+    # Step 1: create virtual environment and install dependencies
+    - script:
+        name: install dependencies
+        code: |
+            python3 -m venv orclvenv
+            . orclvenv/bin/activate
+            pip install -r requirements.pip
+    # Step 2: install Oracle client basic lite
+    - script:
+        name: install oracle-instantclient19.6
+        code: |
+            echo "deb http://ftp.debian.org/debian experimental main" >> /etc/apt/sources.list
+            apt-get update
+            apt-get install -y alien
+            apt-get install -y libaio1
+            wget https://download.oracle.com/otn_software/linux/instantclient/19600/oracle-instantclient19.6-basiclite-19.6.0.0.0-1.x86_64.rpm
+            alien -i oracle-instantclient19.6-basiclite-19.6.0.0.0-1.x86_64.rpm
+            export LD_LIBRARY_PATH=/usr/lib/oracle/19.6/client64/lib:$LD_LIBRARY_PATH
+    # Step 3: unzip and copy ATP credential file
+    - script:
+        name: unzip and copy credential file
+        code: |
+            unzip -o -d /usr/lib/oracle/19.6/client64/lib/network/admin/ ./wallet/Wallet_VLTDB.zip            
+    # Step 4: run linter and tests
+    - script:
+        name: run tests
+        code: |
+            . orclvenv/bin/activate
+            flake8 --exclude=orclvenv* --statistics
             pytest -v --cov=promotion
