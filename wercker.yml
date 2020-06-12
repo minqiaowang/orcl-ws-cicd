@@ -61,3 +61,40 @@ build:
             password: $DOCKER_PASSWORD
             repository: $DOCKER_REPO
             registry: https://fra.ocir.io/v2
+
+deploy:
+    box: python:3.7
+    steps:
+
+    # Step 1: expand environment variables in .template files and remove extension
+    - bash-template
+
+    # Step 2: create a directory and move .yml template files inside
+    - script:
+        name: prepare Kubernetes files
+        code: |
+          mkdir $WERCKER_OUTPUT_DIR/kubernetes
+          mv kubernetes_*.yml $WERCKER_OUTPUT_DIR/kubernetes
+    # Step 3: create Kubernetes entities if missing
+    - kubectl:
+        name: deploy to kubernetes
+        server: $OKE_MASTER
+        token: $OKE_TOKEN
+        insecure-skip-tls-verify: true
+        command: apply -f $WERCKER_OUTPUT_DIR/kubernetes/
+
+    # Step 4: wait 120 seconds for the deploy to be successful
+    - kubectl:
+        name: set deployment timeout
+        server: $OKE_MASTER
+        token: $OKE_TOKEN
+        insecure-skip-tls-verify: true
+        command: patch deployment/orcl-ws-app -p '{"spec":{"progressDeadlineSeconds":120}}'
+
+    # Step 5: watch the deployment. If after 120s pods are considered healthy, the step will exit 0
+    - kubectl:
+        name: check deployment status
+        server: $OKE_MASTER
+        token: $OKE_TOKEN
+        insecure-skip-tls-verify: true
+        command: rollout status deployment/orcl-ws-app
