@@ -44,6 +44,46 @@ def emp():
     return str(employees)
 
 
+@app.route('/salary_increase/<percentage>')
+def sal_inc(percentage):
+    sql = '''select FIRST_NAME, LAST_NAME, SALARY, COMMISSION_PCT,
+                    SALARY * (1 + nvl(COMMISSION_PCT,0)) as "Total",
+                    SALARY * (1 + ''' + percentage + '''/100) as "New Salary",
+                    SALARY * (1 + ''' + percentage + '''/100) * (1 + nvl(COMMISSION_PCT,0)) as "New Total"
+             from EMPLOYEES order by 1,2'''
+    employees = '''<table border=1><tr><td>First Name</td><td>Last Name</td>
+                   <td>Salary</td><td>Commission</td><td>Total</td>
+                   <td>New Salary</td><td>New Total</td></tr>'''
+    cursor = connection.cursor()
+    for res in cursor.execute(sql):
+        employees += '<tr><td>' + res[0] + '</td><td>' + res[1]
+        employees += '</td><td>' + str(res[2]) + '</td><td>' + str(res[3])
+        employees += '</td><td>' + str(res[4]) + '</td><td>' + str(res[5])
+        employees += '</td><td>' + str(res[6]) + '</td></tr>'
+    employees += '</table>'
+    return str(employees)
+
+
+@app.route('/add_commission/<value>')
+def add_commp(value):
+    sql = '''select FIRST_NAME, LAST_NAME, SALARY, COMMISSION_PCT,
+                    SALARY * (1 + nvl(COMMISSION_PCT,0)) as "Total",
+                    nvl(COMMISSION_PCT,0) + ''' + value + ''' as "New Commission",
+                    SALARY * (1 + nvl(COMMISSION_PCT,0) + ''' + value + ''') as "New Total"
+             from EMPLOYEES order by 1,2'''
+    employees = '''<table border=1><tr><td>First Name</td><td>Last Name</td>
+                   <td>Salary</td><td>Commission</td><td>Total</td>
+                   <td>New Commission</td><td>New Total</td></tr>'''
+    cursor = connection.cursor()
+    for res in cursor.execute(sql):
+        employees += '<tr><td>' + res[0] + '</td><td>' + res[1]
+        employees += '</td><td>' + str(res[2]) + '</td><td>' + str(res[3])
+        employees += '</td><td>' + str(res[4]) + '</td><td>' + str(res[5])
+        employees += '</td><td>' + str(res[6]) + '</td></tr>'
+    employees += '</table>'
+    return str(employees)
+
+
 if __name__ == '__main__':
     DBUSER = 'hr'
     DBPASS = 'WelCom3#2020_'
