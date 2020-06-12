@@ -28,6 +28,22 @@ def conn():
     return str(connection.version)
 
 
+@app.route('/employees')
+def emp():
+    sql = '''select FIRST_NAME, LAST_NAME, SALARY, COMMISSION_PCT,
+                    SALARY * (1 + nvl(COMMISSION_PCT,0)) as "Total"
+             from EMPLOYEES order by 1,2'''
+    employees = '''<table border=1><tr><td>First Name</td><td>Last Name</td>
+                   <td>Salary</td><td>Commission</td><td>Total</td></tr>'''
+    cursor = connection.cursor()
+    for res in cursor.execute(sql):
+        employees += '<tr><td>' + res[0] + '</td><td>' + res[1] + '</td><td>'
+        employees += str(res[2]) + '</td><td>' + str(res[3]) + '</td><td>'
+        employees += str(res[4]) + '</td></tr>'
+    employees += '</table>'
+    return str(employees)
+
+
 if __name__ == '__main__':
     DBUSER = 'hr'
     DBPASS = 'WelCom3#2020_'
