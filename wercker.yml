@@ -1,0 +1,18 @@
+build:
+    box: python:3.7
+    steps:
+
+    # Step 1: create virtual enviroment and install dependencies
+    - script:
+        name: install dependencies
+        code: |
+            python3 -m venv orclvenv
+            . orclvenv/bin/activate
+            pip install -r requirements.pip
+    # Step 2: run linter and tests
+    - script:
+        name: run tests
+        code: |
+            . orclvenv/bin/activate
+            flake8 --exclude=orclvenv* --statistics
+            pytest -v --cov=promotion
