@@ -49,3 +49,15 @@ build:
             . orclvenv/bin/activate
             flake8 --exclude=orclvenv* --statistics
             pytest -v --cov=promotion
+    # Step 5: push application in Docker image to OCIR 
+    - internal/docker-push:
+            entrypoint: ./promotion
+            cmd: 0.0.0.0 8080
+            env: "DB_USER=${DB_USER} DB_PASSWORD=${DB_PASSWORD} DB_SERVICE=${DB_SERVICE}"
+            working-dir: $WERCKER_ROOT
+            tag: $WERCKER_GIT_COMMIT
+            ports: "8080"
+            username: $DOCKER_USERNAME
+            password: $DOCKER_PASSWORD
+            repository: $DOCKER_REPO
+            registry: https://fra.ocir.io/v2

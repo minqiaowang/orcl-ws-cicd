@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Set virtual environment
+. ./activate_env
+
+# Start application
+python promotion.py "$@"
