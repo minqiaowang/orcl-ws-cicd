@@ -9,17 +9,17 @@ app = Bottle()
 
 @app.route('/addition/<salary>/<amount>')
 def addition(salary, amount):
-    return salary + amount
+    return str(int(salary) + int(amount))
 
 
 @app.route('/increment/<salary>/<percentage>')
 def increment(salary, percentage):
-    return salary * (1 + percentage/100)
+    return str(int(salary) * (1 + int(percentage)/100))
 
 
 @app.route('/decrease/<salary>/<amount>')
 def decrease(salary, amount):
-    return salary - amount
+    return str(int(salary) - int(amount))
 
 
 if __name__ == '__main__':
