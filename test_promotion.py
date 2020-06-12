@@ -12,3 +12,6 @@ class TestPromotion:
 
     def test_increment(self):
         assert 1250 == promotion.increment(1000, 25)
+
+    def test_decrease(self):
+        assert 970 == promotion.decrease(1150, 180)
